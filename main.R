@@ -362,6 +362,15 @@ probmean120$NIV_INSP <- predict(mylogit120, newdata = probmean120, type = "respo
 probmean120
 
 mean(as.numeric(probmean120$NIV_INSP))
+
+##################
+probmean120 <- with(data_enoe_filtered, data.frame(SEX = mean(SEX), EDA = mean(EDA), SCIAN = factor(1:22)))
+
+probmean120$NIV_INSP <- predict(mylogit120, newdata = probmean120, type = "response")
+
+probmean120
+
+mean(as.numeric(probmean120$NIV_INSP))
 # Probabilidad de estar desempleado a nivel nacional: 0.1387203
 
 probdec120 <- with(data_enoe_filtered, data.frame(SEX = mean(SEX), EDA = rep(seq(from = 15, to = 65, length.out = 10),
@@ -377,8 +386,24 @@ probdec120n<- within(probdec120n, {
 
 probdec120n
 
+# Probabilidad de estar desempleado a nivel nacional: 0.1387203
+
+probdec120 <- with(data_enoe_filtered, data.frame(SEX = mean(SEX), EDA = rep(seq(from = 15, to = 65, length.out = 10), 21), SCIAN = factor(rep(1:21, each = 10))))
+
+probdec120n <- cbind(probdec120, predict(mylogit120, newdata = probdec120, type = "link",
+                                         se = TRUE))
+probdec120n<- within(probdec120n, {
+  PredictedProb <- plogis(fit)
+  LL <- plogis(fit - (1.96 * se.fit))
+  UL <- plogis(fit + (1.96 * se.fit))
+})
+
+probdec120n
 # Grafica de probabilidades 
 probdec120n$NIV_INS <- as.character(probdec120n$NIV_INS)
+
+write.csv(probdec120n, 'data/reglog_niv_ins.csv')
+
 chart_probability <- probdec120n %>% mutate(NIV_INS = replace(NIV_INS, NIV_INS == '1','Primaria incompleta')) %>% 
   mutate(NIV_INS = replace(NIV_INS,NIV_INS == '2','Primaria completa')) %>% 
   mutate(NIV_INS = replace(NIV_INS,NIV_INS == '3','Secundaria completa')) %>% 
@@ -427,6 +452,8 @@ probdec120n
 
 # Grafica de probabilidades 
 probdec120n$SEX <- as.character(probdec120n$SEX)
+write.csv(probdec120n, 'data/reglog_sexo.csv')
+
 chart_probability <- probdec120n %>% mutate(SEX = replace(SEX, SEX == '1','Masculino')) %>% 
   mutate(SEX = replace(SEX,SEX == '2','Femenino')) 
 
