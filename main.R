@@ -168,20 +168,21 @@ data_enoe_filtered$SEX[data_enoe_filtered$SEX == 2] <- 1 # Mujer
 
 # Visualizaciones
 # TOTAL DE TRABAJADORES EN STEM 2015 - 2020
+data_enoe_filtered$SEX <- as.numeric(data_enoe_filtered$SEX)
 data_enoe_filtered %>%
   filter(CLASE2 == 1) %>% 
   group_by(SEX, EDA) %>% 
   dplyr::summarise(tdhr= sum(wt=FAC)) %>% 
   mutate(text = paste("Total de Desempleados Abiertos ", tdhr, sep=""))%>%
-  mutate(SEX = replace(SEX, SEX == 1,'Masculino'))%>%
-  mutate(SEX = replace(SEX, SEX == 2,'Femenino'))%>%
+  mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+  mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
   ggplot(aes(x = as.factor(EDA), y = tdhr, fill=as.factor(SEX), text=text)) +
   geom_col(position = "dodge") + 
   scale_y_continuous(labels = scales::comma) +
   #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
-  scale_fill_manual(values = c("blueviolet","cadetblue3")) +
+  scale_fill_manual(values = c("cadetblue3","blueviolet")) +
   labs(title = "",
-       fill = "Género",
+       fill = "Sexo",
        y="Total de Desempleados Abiertos",
        x="Edad")
 
@@ -190,15 +191,15 @@ data_enoe_filtered %>%
   group_by(SEX, EDA) %>% 
   dplyr::summarise(tdhr= sum(wt=FAC)) %>% 
   mutate(text = paste("Total de trabajadores en STEM: ", tdhr, sep=""))%>%
-  mutate(SEX = replace(SEX, SEX == 1,'Masculino'))%>%
-  mutate(SEX = replace(SEX, SEX == 2,'Femenino'))%>%
+  mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+  mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
   ggplot(aes(x = as.factor(EDA), y = tdhr, fill=as.factor(SEX), text=text)) +
   geom_col(position = "dodge") + 
   scale_y_continuous(labels = scales::comma) +
   #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
-  scale_fill_manual(values = c("blueviolet","cadetblue3")) +
+  scale_fill_manual(values = c("cadetblue3","blueviolet")) +
   labs(title = "",
-       fill = "Género",
+       fill = "Sexo",
        y="Total de trabajadores en STEM",
        x="Edad")
 
