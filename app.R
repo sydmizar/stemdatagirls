@@ -43,8 +43,8 @@ prob_niv_ins = read.csv("data/reglog_niv_ins.csv")
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("Análisis Exploratorio", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Brecha Salarial", tabName = "brecha", icon = icon("bar-chart-o")),
+    menuItem("Análisis Exploratorio", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Código fuente App", icon = icon("file-code-o"),
              href = "https://github.com/sydmizar/stemdatagirls")
     )
@@ -52,25 +52,29 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(
   tabItems(
+    tabItem("brecha",
+            fluidRow(
+              htmlOutput("frame")
+            )
+    ),
     tabItem("dashboard",
             fluidRow(
               box(
                 title = "Mujeres en STEM",
                 width = "100%",
                 solidHeader = TRUE,
-                background = "purple",
-                "Introduccion"
+                background = "purple"
               )
             ),
-            fluidRow(
-              box(
-                title = "Total de Empleados por actividad económica",
-                status = "primary",
-                plotlyOutput("actividadeconomica", height = 400),
-                height = 460,
-                width = "100%"
-              )
-            ),
+            # fluidRow(
+            #   box(
+            #     title = "Total de Empleados por actividad económica",
+            #     status = "primary",
+            #     plotlyOutput("actividadeconomica", height = 400),
+            #     height = 460,
+            #     width = "100%"
+            #   )
+            # ),
             fluidRow(
               box(
                 title = "Total de trabajadores en STEM por año",
@@ -178,11 +182,6 @@ body <- dashboardBody(
                 height = 460,
                 width = "100%"
               )
-            )
-    ),
-    tabItem("brecha",
-            fluidRow(
-              htmlOutput("frame")
             )
     )
   )

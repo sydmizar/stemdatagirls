@@ -274,8 +274,9 @@ data_enoe_filtered %>%
 
 # Total de empleados por actividad economica
 
-chart_scian_sex <- data_enoe_filtered %>% filter(CLASE2 == 0, SCIAN != 21) %>% group_by(SEX, SCIAN) %>% dplyr::summarise(tdhr= sum(wt=FAC))
+chart_scian_sex <- data_enoe_filtered %>% filter(CLASE2 == 0) %>% group_by(SEX, SCIAN) %>% dplyr::summarise(tdhr= sum(wt=FAC))
 chart_scian_sex$SCIAN <- as.character(chart_scian_sex$SCIAN)
+chart_scian_sex$SEX <- as.numeric(chart_scian_sex$SEX)
 write.csv(chart_scian_sex, 'data/chart_scian_sex.csv')
 
 # chart_scian_sex$SEX <- as.character(chart_scian_sex$SEX)
@@ -301,16 +302,16 @@ chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '1
 chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '20','Actividades gubernamentales y de organismos internacionales'))
 chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '21','No especificado'))
 
-chart_scian_sex <- chart_scian_sex %>% mutate(SEX = replace(SEX, SEX == 1,'Masculino'))
-chart_scian_sex <- chart_scian_sex %>% mutate(SEX = replace(SEX, SEX == 2,'Femenino'))
+chart_scian_sex <- chart_scian_sex %>% mutate(SEX = replace(SEX, SEX == 1,'Hombre'))
+chart_scian_sex <- chart_scian_sex %>% mutate(SEX = replace(SEX, SEX == 2,'Mujer'))
 
 chart_scian_sex %>% ggplot(aes(x = as.factor(SCIAN), y = tdhr, fill=as.factor(SEX))) +
   geom_col(position = "dodge") + 
   scale_y_continuous(labels = scales::comma) +
   #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
-  scale_fill_manual(values = c("blueviolet", "cadetblue3")) +
+  scale_fill_manual(values = c("cadetblue3", "blueviolet")) +
   labs(title = "",
-       fill = "Género",
+       fill = "Sexo",
        y="Total de empleados",
        x="Actividades económicas") + coord_flip()
 #  + scale_x_discrete(guide = guide_axis(angle = 90))
