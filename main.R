@@ -169,10 +169,14 @@ data_enoe_filtered$SEX[data_enoe_filtered$SEX == 2] <- 1 # Mujer
 # Visualizaciones
 # TOTAL DE TRABAJADORES EN STEM 2015 - 2020
 data_enoe_filtered$SEX <- as.numeric(data_enoe_filtered$SEX)
-data_enoe_filtered %>%
+tdesempleo_abierto_edad <- data_enoe_filtered %>%
   filter(CLASE2 == 1) %>% 
   group_by(SEX, EDA) %>% 
-  dplyr::summarise(tdhr= sum(wt=FAC)) %>% 
+  dplyr::summarise(tdhr= sum(wt=FAC))
+
+write.csv(tdesempleo_abierto_edad, 'data/tdesempleo_abierto_edad.csv')
+
+tdesempleo_abierto_edad %>% 
   mutate(text = paste("Total de Desempleados Abiertos ", tdhr, sep=""))%>%
   mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
   mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
@@ -186,10 +190,14 @@ data_enoe_filtered %>%
        y="Total de Desempleados Abiertos",
        x="Edad")
 
-data_enoe_filtered %>%
+templeados_edad <- data_enoe_filtered %>% 
   filter(SCIAN %in% c(1,2,3,4,5,9,10,11,12,13,16), CLASE2 == 0) %>% 
   group_by(SEX, EDA) %>% 
-  dplyr::summarise(tdhr= sum(wt=FAC)) %>% 
+  dplyr::summarise(tdhr= sum(wt=FAC))
+
+write.csv(templeados_edad, 'data/templeados_edad.csv')
+
+templeados_edad %>%
   mutate(text = paste("Total de trabajadores en STEM: ", tdhr, sep=""))%>%
   mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
   mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
@@ -203,40 +211,51 @@ data_enoe_filtered %>%
        y="Total de trabajadores en STEM",
        x="Edad")
 
-data_enoe_filtered %>%
+# Total de trabajadores STEM por año
+templeados_anio <- data_enoe_filtered %>% 
   filter(SCIAN %in% c(1,2,3,4,5,9,10,11,12,13,16), CLASE2 == 0) %>% 
   group_by(SEX, ANIO) %>% 
-  dplyr::summarise(tdhr= sum(wt=FAC)) %>% 
+  dplyr::summarise(tdhr= sum(wt=FAC))  
+  
+write.csv(templeados_anio, 'data/templeados_anio.csv')
+
+templeados_anio %>%
   mutate(text = paste("Total de trabajadores en STEM: ", tdhr, sep=""))%>%
-  mutate(SEX = replace(SEX, SEX == 1,'Masculino'))%>%
-  mutate(SEX = replace(SEX, SEX == 2,'Femenino'))%>%
+  mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+  mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
   ggplot(aes(x = as.factor(ANIO), y = tdhr, fill=as.factor(SEX), text=text)) +
   geom_col(position = "dodge") + 
   scale_y_continuous(labels = scales::comma) +
   #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
-  scale_fill_manual(values = c("blueviolet","cadetblue3")) +
+  scale_fill_manual(values = c("cadetblue3","blueviolet")) +
   labs(title = "",
-       fill = "Género",
+       fill = "Sexo",
        y="Total de trabajadores STEM",
        x="Año")
 
-data_enoe_filtered %>%
+# Total de desempleados abiertos por año
+tdesempleados_anio <- data_enoe_filtered %>%
   filter(CLASE2 == 1) %>% 
   group_by(SEX, ANIO) %>% 
-  dplyr::summarise(tdhr= sum(wt=FAC)) %>% 
+  dplyr::summarise(tdhr= sum(wt=FAC)) 
+
+write.csv(tdesempleados_anio, 'data/tdesempleados_anio.csv')
+
+tdesempleados_anio %>% 
   mutate(text = paste("Total de trabajadores en STEM: ", tdhr, sep=""))%>%
-  mutate(SEX = replace(SEX, SEX == 1,'Masculino'))%>%
-  mutate(SEX = replace(SEX, SEX == 2,'Femenino'))%>%
+  mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+  mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
   ggplot(aes(x = as.factor(ANIO), y = tdhr, fill=as.factor(SEX), text=text)) +
   geom_col(position = "dodge") + 
   scale_y_continuous(labels = scales::comma) +
   #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
-  scale_fill_manual(values = c("blueviolet","cadetblue3")) +
+  scale_fill_manual(values = c("cadetblue3","blueviolet")) +
   labs(title = "",
-       fill = "Género",
+       fill = "Sexo",
        y="Total de desempleados abiertos",
        x="Año")
 
+# NO
 data_enoe_filtered %>%
   filter(CLASE2 == 0) %>% 
   group_by(SEX, SCIAN) %>% 
@@ -251,9 +270,14 @@ data_enoe_filtered %>%
        fill = "Sexo",
        y="Total de trabajadores",
        x="Actividad económica")
+# NO
+
+# Total de empleados por actividad economica
 
 chart_scian_sex <- data_enoe_filtered %>% filter(CLASE2 == 0, SCIAN != 21) %>% group_by(SEX, SCIAN) %>% dplyr::summarise(tdhr= sum(wt=FAC))
 chart_scian_sex$SCIAN <- as.character(chart_scian_sex$SCIAN)
+write.csv(chart_scian_sex, 'data/chart_scian_sex.csv')
+
 # chart_scian_sex$SEX <- as.character(chart_scian_sex$SEX)
 chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '1','Agricultura, ganadería, aprovechamiento forestal, pesca y caza'))
 chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '2','Minería'))

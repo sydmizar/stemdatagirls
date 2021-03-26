@@ -42,6 +42,13 @@ dd = read.csv2("data/enoe2020.csv")
 dd = dd %>%
   mutate(Sex = case_when(sex == 1 ~ "Hombre", sex == 2 ~ "Mujer"))
 
+tdesempleo_abierto_edad = read.csv("data/tdesempleo_abierto_edad.csv")
+templeados_edad = read.csv("data/templeados_edad.csv")
+templeados_anio = read.csv("data/templeados_anio.csv")
+tdesempleados_anio = read.csv("data/tdesempleados_anio.csv")
+chart_scian_sex = read.csv("data/chart_scian_sex.csv")
+
+
 # imssData <- read.csv("data/data_imss.csv", header = TRUE)
 # 
 # AllDataENOE <- read.csv("data/data_enoe.csv", header = TRUE)
@@ -83,6 +90,50 @@ body <- dashboardBody(
                 solidHeader = TRUE,
                 background = "purple",
                 "Introduccion"
+              )
+            ),
+            # actividadeconomica, desempleadosanio, empleadosanio, empleadosedad, desempleoedad
+            fluidRow(
+              box(
+                title = "Total de Empleados por actividad económica",
+                status = "primary",
+                plotlyOutput("actividadeconomica", height = 400),
+                height = 460,
+                width = "100%"
+              )
+            ),
+            fluidRow(
+              box(
+                title = "Total de trabajadores en STEM por año",
+                status = "primary",
+                plotlyOutput("empleadosanio", height = 400),
+                height = 460
+                # width = "100%"
+              ),
+              box(
+                title = "Total de desempleados abiertos por año",
+                status = "primary",
+                plotlyOutput("desempleadosanio", height = 400),
+                height = 460
+                # width = "100%"
+              )
+            ),
+            fluidRow(
+              box(
+                title = "Total de trabajadores en STEM por edad",
+                status = "primary",
+                plotlyOutput("empleadosedad", height = 400),
+                height = 460,
+                width = "100%"
+              )
+            ),
+            fluidRow(
+              box(
+                title = "Total de desempleados abiertos por edad",
+                status = "primary",
+                plotlyOutput("desempleoedad", height = 400),
+                height = 460,
+                width = "100%"
               )
             ),
             fluidRow(
@@ -139,8 +190,8 @@ body <- dashboardBody(
                 title = "Población en STEM y horas trabajadas en la semana",
                 status = "primary",
                 plotlyOutput("horas", height = 400),
-                height = 460
-                # width = "100%"
+                height = 460,
+                width = "100%"
               )
             )
             # fluidRow(
@@ -507,12 +558,12 @@ server <- function(input, output, session) {
       summarise(total=sum(wt=fac_tri.x),
                 ingreso=mean(ingocup)) %>%  
       mutate(Ingreso=round(ingreso,2)) %>%
-      mutate(Población=round(total,0)) %>% 
+      mutate(Poblacion=round(total,0)) %>% 
       mutate(text = paste("Sexo: ", Sex,
                           "\nIngreso mensual promedio : ", Ingreso, 
-                          "\nPoblación: ", Población, 
+                          "\nPoblación: ", Poblacion, 
                           "\nPrestaciones: ", pre_asa, sep="")) %>%
-      ggplot(aes(x=as_factor(pre_asa), y=Ingreso, size = Población, color = as_factor(Sex), text=text)) +
+      ggplot(aes(x=as_factor(pre_asa), y=Ingreso, size = Poblacion, color = as_factor(Sex), text=text)) +
       geom_point() +
       scale_colour_manual(values = c("cadetblue3","blueviolet") ) +
       labs( color = "Sexo",
@@ -534,12 +585,12 @@ server <- function(input, output, session) {
       summarise(total=sum(wt=fac_tri.x),
                 ingreso=mean(ingocup)) %>%  
       mutate(Ingreso=round(ingreso,2)) %>%
-      mutate(Población=round(total,0)) %>% 
+      mutate(Poblacion=round(total,0)) %>% 
       mutate(text = paste("Sexo: ", Sex,
                           "\nIngreso mensual promedio : ", Ingreso, 
-                          "\nPoblación: ", Población, 
+                          "\nPoblación: ", Poblacion, 
                           "\nPrestaciones de salud: ", medica5c, sep="")) %>%
-      ggplot(aes(x=as_factor(medica5c), y=Ingreso, size = Población, color = as_factor(Sex), text=text)) +
+      ggplot(aes(x=as_factor(medica5c), y=Ingreso, size = Poblacion, color = as_factor(Sex), text=text)) +
       geom_point() +
       scale_colour_manual(values = c("cadetblue3","blueviolet") ) +
       labs( color = "Sexo",
@@ -563,12 +614,12 @@ server <- function(input, output, session) {
                 horas=mean(hrsocup)) %>% 
       mutate(Ingreso=round(ingreso,2)) %>%
       mutate(Horas=round(horas,0)) %>%
-      mutate(Población=round(total,0)) %>% #Aquí termina la transformación de variables
+      mutate(Poblacion=round(total,0)) %>% 
       mutate(text = paste("Sexo: ", Sex,
                           "\nIngreso mensual promedio : ", Ingreso, 
-                          "\nPoblación: ", Población, 
+                          "\nPoblación: ", Poblacion, 
                           "\nHoras trabajadas promedio: ", Horas , sep="")) %>%
-      ggplot(aes(x=as_factor(Horas), y=Ingreso, size = Población, color = as_factor(Sex), text=text)) +
+      ggplot(aes(x=as_factor(Horas), y=Ingreso, size = Poblacion, color = as_factor(Sex), text=text)) +
       geom_point() +
       scale_colour_manual(values = c("cadetblue3","blueviolet") ) +
       labs( color = "Sexo",
@@ -579,6 +630,119 @@ server <- function(input, output, session) {
       theme( axis.text.x = element_text(angle = 45, hjust = 1),
              legend.position="left") -> sexo_horas
     ggplotly(sexo_horas, tooltip = "text")
+  })
+  
+  output$desempleoedad <- renderPlotly({
+    tdesempleo_abierto_edad %>% 
+      mutate(text = paste("Total de Desempleados Abiertos ", tdhr, sep=""))%>%
+      mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+      mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
+      ggplot(aes(x = as.factor(EDA), y = tdhr, fill=as.factor(SEX), text=text)) +
+      geom_col(position = "dodge") + 
+      scale_y_continuous(labels = scales::comma) +
+      #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
+      scale_fill_manual(values = c("cadetblue3","blueviolet")) +
+      labs(title = "",
+           fill = "Sexo",
+           y="Total de Desempleados Abiertos",
+           x="Edad") + 
+      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+                           legend.position="left") -> cdesempleo_abierto_edad
+    ggplotly(cdesempleo_abierto_edad, tooltip = "text")
+  })
+  
+  output$empleadosedad <- renderPlotly({
+    templeados_edad %>%
+      mutate(text = paste("Total de trabajadores en STEM: ", tdhr, sep=""))%>%
+      mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+      mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
+      ggplot(aes(x = as.factor(EDA), y = tdhr, fill=as.factor(SEX), text=text)) +
+      geom_col(position = "dodge") + 
+      scale_y_continuous(labels = scales::comma) +
+      scale_x_discrete(guide = guide_axis(angle = 90)) +
+      #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
+      scale_fill_manual(values = c("cadetblue3","blueviolet")) +
+      labs(title = "",
+           fill = "Sexo",
+           y="Total de trabajadores en STEM",
+           x="Edad") + 
+      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+                             legend.position="left") -> cempleados_edad
+    ggplotly(cempleados_edad, tooltip = "text")
+  })
+  
+  output$empleadosanio <- renderPlotly({
+    templeados_anio %>%
+      mutate(text = paste("Total de trabajadores en STEM: ", tdhr, sep=""))%>%
+      mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+      mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
+      ggplot(aes(x = as.factor(ANIO), y = tdhr, fill=as.factor(SEX), text=text)) +
+      geom_col(position = "dodge") + 
+      scale_y_continuous(labels = scales::comma) +
+      #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
+      scale_fill_manual(values = c("cadetblue3","blueviolet")) +
+      labs(title = "",
+           fill = "Sexo",
+           y="Total de trabajadores STEM",
+           x="Año") -> cempleados_anio
+    ggplotly(cempleados_anio, tooltip = "text")
+  })
+  
+  output$desempleadosanio <- renderPlotly({
+    tdesempleados_anio %>% 
+      mutate(text = paste("Total de trabajadores en STEM: ", tdhr, sep=""))%>%
+      mutate(SEX = replace(SEX, SEX == 1,'Hombre'))%>%
+      mutate(SEX = replace(SEX, SEX == 2,'Mujer'))%>%
+      ggplot(aes(x = as.factor(ANIO), y = tdhr, fill=as.factor(SEX), text=text)) +
+      geom_col(position = "dodge") + 
+      scale_y_continuous(labels = scales::comma) +
+      #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
+      scale_fill_manual(values = c("cadetblue3","blueviolet")) +
+      labs(title = "",
+           fill = "Sexo",
+           y="Total de desempleados abiertos",
+           x="Año") -> cdesempleados_anio
+    ggplotly(cdesempleados_anio, tooltip = "text")
+    
+  })
+  
+  output$actividadeconomica <- renderPlotly({
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '1','Agricultura, ganadería, aprovechamiento forestal, pesca y caza'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '2','Minería'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '3','Generación y distribución de electricidad, suministro de agua y gas'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '4','Construcción'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '5','Industrias manufactureras'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '6','Comercio al por mayor'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '7','Comercio al por menor'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '8','Transportes, correos y almacenamiento'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '9','Información en medios masivos'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '10','Servicios financieros y de seguros'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '11','Servicios inmobiliarios y de alquiler de bienes'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '12','Servicios profesionales, científicos y técnicos'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '13','Corporativos'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '14','Servicios de apoyo a los negocios y manejo de desechos'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '15','Servicios educativos'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '16','Servicios de salud y de asistencia social'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '17','Servicios de esparcimiento culturales y deportivos'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '18','Servicios de hospedaje y preparación de alimentos y bebidas'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '19','Otros servicios, excepto actividades gubernamentales'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '20','Actividades gubernamentales y de organismos internacionales'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SCIAN = replace(SCIAN, SCIAN == '21','No especificado'))
+    
+    chart_scian_sex <- chart_scian_sex %>% mutate(SEX = replace(SEX, SEX == 1,'Hombre'))
+    chart_scian_sex <- chart_scian_sex %>% mutate(SEX = replace(SEX, SEX == 2,'Mujer'))
+    
+    chart_scian_sex %>% ggplot(aes(x = as.factor(SCIAN), y = tdhr, fill=as.factor(SEX))) +
+      geom_col(position = "dodge") + 
+      scale_y_continuous(labels = scales::comma) +
+      #geom_text(aes(label = tdhr), vjust = -0.2, colour = "black",position = position_dodge(.9))+
+      scale_fill_manual(values = c("cadetblue3","blueviolet")) +
+      labs(title = "",
+           fill = "Sexo",
+           y="Total de empleados",
+           x="Actividades económicas") + coord_flip() -> chart_scian
+    ggplotly(chart_scian, tooltip = "text")
+    
   })
     
   output$evolucion <- renderPlotly({
