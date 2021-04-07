@@ -197,7 +197,7 @@ ui <- dashboardPage(header, sidebar, body, skin = skin)
 server <- function(input, output, session) {
   
   output$frame <- renderUI({
-    test <- "https://app.powerbi.com/view?r=eyJrIjoiMGNmZTA3NGItMTZmMC00MDE3LWJjNTEtYmU5NDk5ZjlmZDZmIiwidCI6IjM5MWY3M2I3LWE1OTAtNDNhZC05OGYwLThiMDUwOThhY2NjOCIsImMiOjR9"
+    test <- "https://app.powerbi.com/view?r=eyJrIjoiMGNmZTA3NGItMTZmMC00MDE3LWJjNTEtYmU5NDk5ZjlmZDZmIiwidCI6IjM5MWY3M2I3LWE1OTAtNDNhZC05OGYwLThiMDUwOThhY2NjOCIsImMiOjR9&pageName=ReportSection"
     my_test <- tags$iframe(src=test, style='width:100%;height:100vh;')
     print(my_test)
     my_test
